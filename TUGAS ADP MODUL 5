@@ -1,0 +1,62 @@
+# List untuk menyimpan data pelanggan
+no_pelanggan = []
+nama_pelanggan = []
+total_belanja = []
+
+def update_data():
+    print("=== Tambah Data Pelanggan ===")
+    no = input("Masukkan No Pelanggan: ")
+    if no in no_pelanggan:
+        print("No pelanggan sudah ada!")
+        return
+    nama = input("Masukkan Nama Pelanggan: ")
+    total = float(input("Masukkan Total Belanja: "))
+    
+    no_pelanggan.append(no)
+    nama_pelanggan.append(nama)
+    total_belanja.append(total)
+    print("Data berhasil ditambahkan!\n")
+
+def hapus_data():
+    print("=== Hapus Data Pelanggan ===")
+    no = input("Masukkan No Pelanggan yang ingin dihapus: ")
+    if no in no_pelanggan:
+        index = no_pelanggan.index(no)
+        del no_pelanggan[index]
+        del nama_pelanggan[index]
+        del total_belanja[index]
+        print("Data berhasil dihapus!\n")
+    else:
+        print("Data tidak ditemukan!\n")
+
+def cetak_data():
+    print("=== Daftar Data Pelanggan ===")
+    if not no_pelanggan:
+        print("Belum ada data.")
+    else:
+        print("{:<15} {:<20} {:<10}".format("No Pelanggan", "Nama Pelanggan", "Total Belanja"))
+        print("-" * 50)
+        for i in range(len(no_pelanggan)):
+            print("{:<15} {:<20} Rp{:<10,.2f}".format(no_pelanggan[i], nama_pelanggan[i], total_belanja[i]))
+    print()
+
+# Menu utama
+while True:
+    print("=== Menu Program Toko ===")
+    print("1. Update Data")
+    print("2. Hapus Data")
+    print("3. Cetak Data")
+    print("4. Keluar")
+    pilihan = input("Pilih menu (1-4): ")
+
+    if pilihan == '1':
+        update_data()
+    elif pilihan == '2':
+        hapus_data()
+    elif pilihan == '3':
+        cetak_data()
+    elif pilihan == '4':
+        print("Terima kasih!")
+        break
+    else:
+        print("Pilihan tidak valid!")
