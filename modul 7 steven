@@ -1,0 +1,60 @@
+def hitung_tagihan_listrik(pemakaian_kwh, golongan):
+    # Menentukan tarif berdasarkan golongan
+    if golongan == 1:
+        tarif_awal = 1500
+        tarif_lanjutan = 2000
+        nama_golongan = "Golongan 1 (Rumah Tangga)"
+    elif golongan == 2:
+        tarif_awal = 2500
+        tarif_lanjutan = 3000
+        nama_golongan = "Golongan 2 (Usaha Kecil)"
+    elif golongan == 3:
+        tarif_awal = 4000
+        tarif_lanjutan = 5000
+        nama_golongan = "Golongan 3 (Usaha Menengah)"
+    elif golongan == 4:
+        tarif_awal = 5000
+        tarif_lanjutan = 7000
+        nama_golongan = "Golongan 4 (Industri)"
+    
+    # Menghitung tagihan
+    if pemakaian_kwh <= 100:
+        total_tagihan = pemakaian_kwh * tarif_awal
+        detail = (
+            f"\n=== RINCIAN TAGIHAN LISTRIK ===\n"
+            f"Golongan\t: {nama_golongan}\n"
+            f"Pemakaian\t: {pemakaian_kwh} kWh\n"
+            f"Tarif\t\t: Rp {tarif_awal:,}/kWh\n"
+            f"---------------------------------\n"
+            f"Total Tagihan\t: Rp {total_tagihan:,}\n"
+            f"================================="
+        )
+    else:
+        pemakaian_awal = 100
+        pemakaian_lebih = pemakaian_kwh - 100
+        tagihan_awal = 100 * tarif_awal
+        tagihan_lebih = pemakaian_lebih * tarif_lanjutan
+        total_tagihan = tagihan_awal + tagihan_lebih
+        
+        detail = (
+            f"\n=== RINCIAN TAGIHAN LISTRIK ===\n"
+            f"Golongan\t: {nama_golongan}\n"
+            f"Pemakaian\t: {pemakaian_kwh} kWh\n\n"
+            f"100 kWh pertama\t: Rp {tarif_awal:,}/kWh\n"
+            f"  = Rp {tagihan_awal:,}\n"
+            f"{pemakaian_lebih} kWh berikutnya\t: Rp {tarif_lanjutan:,}/kWh\n"
+            f"  = Rp {tagihan_lebih:,}\n"
+            f"---------------------------------\n"
+            f"Total Tagihan\t: Rp {total_tagihan:,}\n"
+            f"================================="
+        )
+    
+    return detail
+
+# Input dari pengguna
+print("=== PROGRAM HITUNG TAGIHAN LISTRIK ===")
+pemakaian = int(input("Masukkan jumlah pemakaian (kWh): "))
+golongan = int(input("Masukkan golongan tarif (1-4): "))
+
+# Menghitung dan menampilkan hasil
+print(hitung_tagihan_listrik(pemakaian, golongan))
