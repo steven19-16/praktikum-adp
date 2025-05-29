@@ -1,0 +1,87 @@
+# Input banyaknya persamaan dan variabel
+while True:
+    try:
+        n_persamaan = int(input("Masukkan banyaknya persamaan (2/3): "))
+        if n_persamaan not in [2, 3]:
+            print("Hanya menerima 2 atau 3 persamaan!")
+            continue
+            
+        n_variabel = int(input("Masukkan banyaknya variabel (1/2/3): "))
+        if n_variabel not in [1, 2, 3]:
+            print("Hanya menerima 1, 2, atau 3 variabel!")
+            continue
+            
+        if n_persamaan > n_variabel:
+            print("\nSPL tidak memiliki solusi (banyak persamaan > banyak variabel)")
+            exit()
+        elif n_persamaan < n_variabel:
+            print("\nSPL memiliki banyak solusi (tak hingga) (banyak persamaan < banyak variabel)")
+            exit()
+            
+        break
+    except ValueError:
+        print("Masukkan angka yang valid!")
+
+# Input koefisien dan konstanta
+print("\nMasukkan koefisien dan konstanta untuk setiap persamaan:")
+matriks_A = []
+matriks_B = []
+
+for i in range(n_persamaan):
+    print(f"\nPersamaan {i+1}:")
+    baris = []
+    for j in range(n_variabel):
+        koef = float(input(f"Koefisien x{j+1}: "))
+        baris.append(koef)
+    konstanta = float(input("Konstanta: "))
+    matriks_A.append(baris)
+    matriks_B.append([konstanta])
+
+# Menampilkan sistem persamaan
+print("\nSistem Persamaan yang dimasukkan:")
+for i in range(n_persamaan):
+    persamaan = ""
+    for j in range(n_variabel):
+        persamaan += f"{matriks_A[i][j]}x{j+1} + "
+    persamaan = persamaan[:-3] + f" = {matriks_B[i][0]}"
+    print(persamaan)
+
+# Menghitung determinan untuk matriks 2x2
+if n_persamaan == 2 and n_variabel == 2:
+    det = matriks_A[0][0] * matriks_A[1][1] - matriks_A[0][1] * matriks_A[1][0]
+    
+    if det == 0:
+        print("\nMatriks A tidak memiliki invers (determinan = 0)")
+        print("SPL tidak memiliki solusi tunggal")
+        exit()
+    
+    # Menghitung invers matriks 2x2
+    inv_A = [
+        [matriks_A[1][1]/det, -matriks_A[0][1]/det],
+        [-matriks_A[1][0]/det, matriks_A[0][0]/det]
+    ]
+    
+    # Menghitung solusi X = A^-1 * B
+    x1 = inv_A[0][0] * matriks_B[0][0] + inv_A[0][1] * matriks_B[1][0]
+    x2 = inv_A[1][0] * matriks_B[0][0] + inv_A[1][1] * matriks_B[1][0]
+    
+    print("\nSolusi SPL:")
+    print(f"x1 = {x1:.2f}")
+    print(f"x2 = {x2:.2f}")
+
+elif n_persamaan == 3 and n_variabel == 3:
+    print("\nMaaf, program ini hanya mendukung SPL 2 variabel.")
+    print("Untuk SPL 3 variabel, diperlukan implementasi matriks 3x3 yang lebih kompleks.")
+else:
+    print("\nKasus khusus (1 variabel):")
+    # Solusi untuk 1 variabel
+    if matriks_A[0][0] == 0:
+        if matriks_B[0][0] == 0:
+            print("SPL memiliki banyak solusi (tak hingga)")
+        else:
+            print("SPL tidak memiliki solusi")
+    else:
+        x = matriks_B[0][0] / matriks_A[0][0]
+        print(f"\nSolusi SPL: x = {x:.2f}")
+
+print("\nTerima kasih telah menggunakan program ini!")
