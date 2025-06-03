@@ -1,0 +1,76 @@
+def show_main_menu():
+    """Menampilkan menu utama"""
+    print("\n=== APLIKASI CATATAN ===")
+    print("1. Lihat catatan yang tersedia")
+    print("2. Buat catatan baru")
+    print("3. Exit")
+    choice = input("Pilih opsi (1/2/3): ")
+    return choice
+
+def list_notes():
+    """Menampilkan daftar catatan yang tersedia"""
+    try:
+        # Membaca daftar file catatan
+        with open("daftar_catatan.txt", "r") as file:
+            notes = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        print("\nTidak ada catatan yang tersedia.")
+        return
+    
+    if not notes:
+        print("\nTidak ada catatan yang tersedia.")
+        return
+    
+    print("\nDaftar Catatan:")
+    for i, note in enumerate(notes, 1):
+        print(f"{i}. {note}")
+    
+    note_choice = input("\nMasukkan judul catatan yang ingin dilihat: ")
+    
+    try:
+        with open(f"{note_choice}.txt", "r") as file:
+            content = file.read()
+            print(f"\nIsi catatan '{note_choice}':")
+            print(content)
+    except FileNotFoundError:
+        print("\nData tidak ditemukan")
+
+def create_note():
+    """Membuat catatan baru"""
+    title = input("\nMasukkan judul catatan: ")
+    content = input("Masukkan isi catatan: ")
+    
+    # Menyimpan catatan
+    with open(f"{title}.txt", "w") as file:
+        file.write(content)
+    
+    # Menambahkan judul ke daftar catatan
+    try:
+        with open("daftar_catatan.txt", "r") as file:
+            existing_notes = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        existing_notes = []
+    
+    if title not in existing_notes:
+        with open("daftar_catatan.txt", "a") as file:
+            file.write(title + "\n")
+    
+    print(f"\nCatatan '{title}' berhasil disimpan!")
+
+def main():
+    """Fungsi utama program"""
+    while True:
+        choice = show_main_menu()
+        
+        if choice == '1':
+            list_notes()
+        elif choice == '2':
+            create_note()
+        elif choice == '3':
+            print("\nTerima kasih telah menggunakan aplikasi catatan!")
+            break
+        else:
+            print("\nPilihan tidak valid. Silakan coba lagi.")
+
+if __name__ == "__main__":
+    main()     
