@@ -1,0 +1,52 @@
+import turtle
+
+# Setup dasar
+t = turtle.Turtle()
+t.speed(5)  # Kecepatan sedang
+screen = turtle.Screen()
+screen.bgcolor("lightblue")
+
+# Lapisan kue bawah (coklat)
+t.penup()
+t.goto(0, -100)
+t.pendown()
+t.color("brown")
+t.begin_fill()
+t.circle(100)
+t.end_fill()
+
+# Lapisan kue atas (kuning)
+t.penup()
+t.goto(0, -50)
+t.pendown()
+t.color("yellow")
+t.begin_fill()
+t.circle(70)
+t.end_fill()
+
+# Lilin
+for x in [-40, -20, 0, 20, 40]:
+    t.penup()
+    t.goto(x, 50)
+    t.pendown()
+    t.color("red")
+    t.setheading(90)
+    t.forward(30)  # Batang lilin
+    t.right(30)    # Api
+    t.color("orange")
+    t.forward(10)
+    t.right(120)
+    t.forward(10)
+    t.right(120)
+    t.forward(10)
+
+# Tulisan
+t.penup()
+t.goto(0, -150)
+t.color("purple")
+t.write("HAPPY BRITHDAY!", align="center", font=("Arial", 20, "bold"))
+
+t.hideturtle()
+turtle.done()
+
+
