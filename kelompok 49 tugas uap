@@ -1,0 +1,268 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import math
+import re
+
+class ModernCalculator:
+    def init(self):
+        self.window = tk.Tk()
+        self.window.title("Kalkulator Modern")
+        self.window.geometry("400x600")
+        self.window.configure(bg='#1e1e1e')
+        self.window.resizable(False, False)
+        
+        # Variabel untuk menyimpan ekspresi dan hasil
+        self.expression = ""
+        self.result_var = tk.StringVar()
+        self.result_var.set("0")
+        
+        # History untuk menyimpan perhitungan sebelumnya
+        self.history = []
+        
+        self.create_widgets()
+        self.bind_keyboard()
+        
+    def create_widgets(self):
+        # Frame utama
+        main_frame = tk.Frame(self.window, bg='#1e1e1e')
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Display area
+        display_frame = tk.Frame(main_frame, bg='#2d2d2d', relief=tk.RAISED, bd=2)
+        display_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # History display (kecil)
+        self.history_label = tk.Label(
+            display_frame, 
+            text="", 
+            font=('Segoe UI', 10), 
+            bg='#2d2d2d', 
+            fg='#888888',
+            anchor='e',
+            justify='right'
+        )
+        self.history_label.pack(fill=tk.X, padx=10, pady=(10, 0))
+        
+        # Main display
+        self.display = tk.Label(
+            display_frame, 
+            textvariable=self.result_var, 
+            font=('Segoe UI', 24, 'bold'), 
+            bg='#2d2d2d', 
+            fg='white',
+            anchor='e',
+            justify='right'
+        )
+        self.display.pack(fill=tk.X, padx=10, pady=(5, 15))
+        
+        # Buttons frame
+        buttons_frame = tk.Frame(main_frame, bg='#1e1e1e')
+        buttons_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Button definitions dengan warna berbeda
+        buttons = [
+            # Row 1 - Functions
+            ('C', 0, 0, '#ff6b6b', self.clear),
+            ('⌫', 0, 1, '#ffa726', self.backspace),
+            ('√', 0, 2, '#66bb6a', lambda: self.add_function('√(')),
+            ('÷', 0, 3, '#42a5f5', lambda: self.add_operator('/')),
+            
+            # Row 2 - Advanced functions
+            ('sin', 1, 0, '#66bb6a', lambda: self.add_function('sin(')),
+            ('cos', 1, 1, '#66bb6a', lambda: self.add_function('cos(')),
+            ('tan', 1, 2, '#66bb6a', lambda: self.add_function('tan(')),
+            ('×', 1, 3, '#42a5f5', lambda: self.add_operator('*')),
+            
+            # Row 3 - Numbers and operators
+            ('7', 2, 0, '#424242', lambda: self.add_number('7')),
+            ('8', 2, 1, '#424242', lambda: self.add_number('8')),
+            ('9', 2, 2, '#424242', lambda: self.add_number('9')),
+            ('−', 2, 3, '#42a5f5', lambda: self.add_operator('-')),
+            
+            # Row 4
+            ('4', 3, 0, '#424242', lambda: self.add_number('4')),
+            ('5', 3, 1, '#424242', lambda: self.add_number('5')),
+            ('6', 3, 2, '#424242', lambda: self.add_number('6')),
+            ('+', 3, 3, '#42a5f5', lambda: self.add_operator('+')),
+            
+            # Row 5
+            ('1', 4, 0, '#424242', lambda: self.add_number('1')),
+            ('2', 4, 1, '#424242', lambda: self.add_number('2')),
+            ('3', 4, 2, '#424242', lambda: self.add_number('3')),
+            ('π', 4, 3, '#66bb6a', lambda: self.add_number(str(math.pi))),
+            
+            # Row 6
+            ('±', 5, 0, '#ffa726', self.toggle_sign),
+            ('0', 5, 1, '#424242', lambda: self.add_number('0')),
+            ('.', 5, 2, '#424242', lambda: self.add_number('.')),
+            ('=', 5, 3, '#4caf50', self.calculate),
+            
+            # Row 7 - Parentheses
+            ('(', 6, 0, '#9c27b0', lambda: self.add_number('(')),
+            (')', 6, 1, '#9c27b0', lambda: self.add_number(')')),
+            ('x²', 6, 2, '#66bb6a', lambda: self.add_operator('**2')),
+            ('xʸ', 6, 3, '#66bb6a', lambda: self.add_operator('')),
+        ]
+        
+        # Create buttons
+        for (text, row, col, color, command) in buttons:
+            btn = tk.Button(
+                buttons_frame,
+                text=text,
+                command=command,
+                font=('Segoe UI', 12, 'bold'),
+                bg=color,
+                fg='white',
+                border=0,
+                relief=tk.FLAT,
+                activebackground=self.lighten_color(color),
+                activeforeground='white'
+            )
+            btn.grid(row=row, column=col, sticky='nsew', padx=2, pady=2)
+        
+        # Configure grid weights
+        for i in range(7):
+            buttons_frame.grid_rowconfigure(i, weight=1)
+        for i in range(4):
+            buttons_frame.grid_columnconfigure(i, weight=1)
+    
+    def lighten_color(self, color):
+        """Membuat warna sedikit lebih terang untuk efek hover"""
+        color_map = {
+            '#ff6b6b': '#ff8a80',
+            '#ffa726': '#ffb74d',
+            '#66bb6a': '#81c784',
+            '#42a5f5': '#64b5f6',
+            '#424242': '#616161',
+            '#4caf50': '#66bb6a',
+            '#9c27b0': '#ba68c8'
+        }
+        return color_map.get(color, color)
+    
+    def add_number(self, num):
+        """Menambahkan angka atau karakter ke ekspresi"""
+        self.expression += str(num)
+        self.update_display()
+    
+    def add_operator(self, op):
+        """Menambahkan operator ke ekspresi"""
+        if self.expression and self.expression[-1] not in '+-*/':
+            self.expression += op
+            self.update_display()
+    
+    def add_function(self, func):
+        """Menambahkan fungsi matematika ke ekspresi"""
+        self.expression += func
+        self.update_display()
+    
+    def clear(self):
+        """Membersihkan display"""
+        self.expression = ""
+        self.result_var.set("0")
+        self.history_label.config(text="")
+    
+    def backspace(self):
+        """Menghapus karakter terakhir"""
+        self.expression = self.expression[:-1]
+        if not self.expression:
+            self.result_var.set("0")
+        else:
+            self.update_display()
+    
+    def toggle_sign(self):
+        """Mengubah tanda positif/negatif"""
+        try:
+            current = float(self.result_var.get())
+            if current != 0:
+                self.expression = str(-current)
+                self.update_display()
+        except ValueError:
+            pass
+    
+    def update_display(self):
+        """Memperbarui tampilan dengan ekspresi saat ini"""
+        display_text = self.expression.replace('*', '×').replace('/', '÷')
+        if len(display_text) > 20:
+            display_text = "..." + display_text[-17:]
+        self.result_var.set(display_text or "0")
+    
+    def calculate(self):
+        """Melakukan perhitungan ekspresi"""
+        try:
+            if not self.expression:
+                return
+            
+            # Simpan ekspresi asli untuk history
+            original_expr = self.expression
+            
+            # Ganti fungsi matematika dengan yang sesuai
+            calc_expr = self.expression
+            calc_expr = calc_expr.replace('sin(', 'math.sin(math.radians(')
+            calc_expr = calc_expr.replace('cos(', 'math.cos(math.radians(')
+            calc_expr = calc_expr.replace('tan(', 'math.tan(math.radians(')
+            calc_expr = calc_expr.replace('√(', 'math.sqrt(')
+            
+            # Tambahkan kurung penutup untuk fungsi trigonometri
+            calc_expr = re.sub(r'math\.(sin|cos|tan)\(math\.radians\(([^)]+)\)', 
+                              r'math.\1(math.radians(\2))', calc_expr)
+            
+            # Evaluasi ekspresi
+            result = eval(calc_expr)
+            
+            # Format hasil
+            if isinstance(result, float):
+                if result.is_integer():
+                    result = int(result)
+                else:
+                    result = round(result, 10)
+            
+            # Update history
+            history_text = f"{original_expr.replace('*', '×').replace('/', '÷')} ="
+            self.history_label.config(text=history_text)
+            
+            # Simpan ke history list
+            self.history.append(f"{original_expr} = {result}")
+            
+            # Update display
+            self.result_var.set(str(result))
+            self.expression = str(result)
+            
+        except ZeroDivisionError:
+            messagebox.showerror("Error", "Tidak bisa membagi dengan nol!")
+            self.clear()
+        except Exception as e:
+            messagebox.showerror("Error", "Ekspresi tidak valid!")
+            self.clear()
+    
+    def bind_keyboard(self):
+        """Mengikat keyboard untuk input"""
+        self.window.bind('<Key>', self.on_key_press)
+        self.window.focus_set()
+    
+    def on_key_press(self, event):
+        """Menangani input keyboard"""
+        key = event.char
+        
+        if key.isdigit() or key == '.':
+            self.add_number(key)
+        elif key in '+-*/':
+            self.add_operator(key)
+        elif key == '(':
+            self.add_number('(')
+        elif key == ')':
+            self.add_number(')')
+        elif event.keysym == 'Return':
+            self.calculate()
+        elif event.keysym == 'BackSpace':
+            self.backspace()
+        elif event.keysym == 'Escape':
+            self.clear()
+    
+    def run(self):
+        """Menjalankan aplikasi"""
+        self.window.mainloop()
+
+# Menjalankan kalkulator
+if name == "main":
+    calc = ModernCalculator()
+    calc.run()
